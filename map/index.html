@@ -73,9 +73,7 @@
   </div>
 
 
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
-  </script>
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
     integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
   </script>
@@ -83,6 +81,7 @@
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
   </script>
   <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/simple-statistics@5.2.1/dist/simple-statistics.min.js"></script>
   <script>
     var options = {
       center: [0, 180],
@@ -94,6 +93,164 @@
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+
+    var attributeValue = "name",
+            normValue = "pop";
+
+    /// AJAX call to load county-level data
+    $.getJSON("data/states_w_pop.json", function (data) {
+      drawMap(data); // draw the map using GeoJSON data
+    });
+
+    function drawMap(data) {
+
+      // create Leaflet data layer and add to map
+      var dataLayer = L.geoJson(data, {
+        style: function (feature) {
+          // style counties with initial default path options
+          return {
+            color: '#dddddd',
+            weight: 2,
+            fillOpacity: 1,
+            fillColor: '#1f78b4'
+          };
+        },
+        onEachFeature: function (feature, layer) {
+
+          // when mousing over a layer
+          layer.on('mouseover', function () {
+
+            // change the stroke color and bring that element to the front
+            layer.setStyle({
+              color: '#ff6e00'
+            }).bringToFront();
+          });
+
+          // on mousing off layer
+          layer.on('mouseout', function () {
+
+            // reset the layer style to its original stroke color
+            layer.setStyle({
+              color: '#dddddd'
+            });
+          });
+        }
+      }).addTo(map);
+
+      // fit the map's bounds and zoom level using the dataLayer extent
+      map.fitBounds(dataLayer.getBounds(), {
+        paddingTopLeft: [25, 25] // push off top left for sake of legend
+      });
+
+      // addUi(dataLayer); // add the UI controls
+      updateMap(dataLayer);
+
+    };
+
+    function updateMap(dataLayer) {
+      // get the class breaks for the current data attribute
+      var breaks = getClassBreaks(dataLayer);
+
+      // addLegend(breaks); // add the legend to the map using breaks
+      // updateLegend(breaks);
+
+      // loop through each county layer to update the color and tooltip info
+      dataLayer.eachLayer(function (layer) {
+
+        var props = layer.feature.properties;
+
+        // console.log(props)
+
+        // set the fill color of layer based on its normalized data value
+        layer.setStyle({
+          fillColor: getColor(props[normValue], breaks)
+        });
+
+        // assemble string sequence of info for tooltip (end line break with + operator)
+        var tooltipInfo = "<b>" + props[normValue] +
+          " State</b></br>" + props[attributeValue];
+
+        // bind a tooltip to layer with county-specific information
+        layer.bindTooltip(tooltipInfo, {
+          // sticky property so tooltip follows the mouse
+          sticky: true,
+          tooltipAnchor: [200, 200]
+        });
+
+      });
+    };
+
+    function getClassBreaks(dataLayer) {
+
+      // create empty Array for storing values
+      var values = [];
+
+      // loop through all the counties
+      dataLayer.eachLayer(function (layer) {
+        var value = layer.feature.properties[normValue];
+        values.push(value); // push the normalized value for each layer into the Array
+      });
+
+      console.log(values)
+
+      // determine similar clusters
+      var clusters = ss.ckmeans(values, 5);
+
+      // create an array of the lowest value within each cluster
+      var breaks = clusters.map(function (cluster) {
+        return [cluster[0], cluster.pop()];
+      });
+
+      //return array of arrays, e.g., [[0.24,0.25], [0.26, 0.37], etc]
+      return breaks;
+
+    }
+
+    function getColor(d, breaks) {
+      // function accepts a single normalized data attribute value
+      // and uses a series of conditional statements to determine which
+      // which color value to return to return to the function caller
+
+      if (d <= breaks[0][1]) {
+        return '#f1eef6';
+      } else if (d <= breaks[1][1]) {
+        return '#bdc9e1';
+      } else if (d <= breaks[2][1]) {
+        return '#74a9cf';
+      } else if (d <= breaks[3][1]) {
+        return '#2b8cbe'
+      } else if (d <= breaks[4][1]) {
+        return '#045a8d'
+      }
+
+    }
+
+    function addLegend(breaks) {
+
+      // create a new Leaflet control object, and position it top left
+      var legendControl = L.control({
+        position: 'topleft'
+      });
+
+      // when the legend is added to the map
+      legendControl.onAdd = function (map) {
+
+        // select a div element with an id attribute of legend
+        var legend = L.DomUtil.get('legend');
+
+        // disable scroll and click/touch on map when on legend
+        L.DomEvent.disableScrollPropagation(legend);
+        L.DomEvent.disableClickPropagation(legend);
+
+        // return the selection to the method
+        return legend;
+
+      };
+
+      // add the empty legend div to the map
+      legendControl.addTo(map);
+
+    }
   </script>
 </body>
 
