@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Hello, map!</title>
+  <title>US Population</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" />
@@ -38,7 +38,7 @@
   <div class="container-fluid">
     <header class="row text-white py-3">
       <div class="col mx-2">
-        <h1 class="">Map title</h1>
+        <h1 class="">Contiguous US Population circa 2017</h1>
       </div>
     </header>
 
@@ -167,8 +167,8 @@
         });
 
         // assemble string sequence of info for tooltip (end line break with + operator)
-        var tooltipInfo = "<b>" + props[normValue] +
-          " State</b></br>" + props[attributeValue];
+        var tooltipInfo = "Pop: " + props[normValue] +
+          "<br> State: " + props[attributeValue];
 
         // bind a tooltip to layer with county-specific information
         layer.bindTooltip(tooltipInfo, {
@@ -194,7 +194,7 @@
       console.log(values)
 
       // determine similar clusters
-      var clusters = ss.ckmeans(values, 5);
+      var clusters = ss.ckmeans(values, 7);
 
       // create an array of the lowest value within each cluster
       var breaks = clusters.map(function (cluster) {
@@ -214,14 +214,19 @@
       if (d <= breaks[0][1]) {
         return '#f1eef6';
       } else if (d <= breaks[1][1]) {
-        return '#bdc9e1';
+        return '#d0d1e6';
       } else if (d <= breaks[2][1]) {
-        return '#74a9cf';
+        return '#a6bddb';
       } else if (d <= breaks[3][1]) {
-        return '#2b8cbe'
+        return '#74a9cf'
       } else if (d <= breaks[4][1]) {
-        return '#045a8d'
+        return '#3690c0'
+      } else if (d <= breaks[5][1]) {
+        return '#0570b0'
+      } else if (d <= breaks[6][1]) {
+        return '#034e7b'
       }
+
 
     }
 
