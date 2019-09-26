@@ -49,24 +49,32 @@
       <aside id="about" class="col-12 col-md-4 col-lg-3 text-white py-2 bg-secondary overflow-auto">
         <section>
           <h2>About this map</h2>
-          <p>A fan brush is a fantastic piece of equipment. Use it. Make friends with it. We're not trying to teach you
-            a thing to copy. We're just here to teach you a technique, then let you loose into the world. We'll put a
-            happy little sky in here.</p>
-          <p>We'll paint one happy little tree right here. The secret to doing anything is believing that you can do it.
-            Anything that you believe you can do strong enough, you can do. Anything. As long as you believe. Let's make
-            a nice big leafy tree.</p>
-          <p>You are only limited by your imagination. We'll do another happy little painting. Work on one thing at a
-            time. Don't get carried away - we have plenty of time. Look at them little rascals. We'll put all the little
-            clouds in and let them dance around and have fun. You can spend all day playing with mountains.</p>
+          <p>
+            I created this map as my first solo full stack web mapping project. To prepare the dataset, I utilized
+            jupyter notebook and Python with these modules:
+            <ul>
+              <li>Pandas</li>
+              <li>GeoPandas</li>
+              <li>Shapely</li>
+              <li>MatPlotLib</li>
+            </ul>
+          </p>
+          <p>
+            The goal of this project is to grab some geospatial data from a linked source like Natural Earth and join it
+            up
+            with some CSV data. This is all to demonstrate a basic workflow that can be added onto until the inteded
+            result is achieved. This workflow can be used for any geospatial datasets including shapefiles, GeoJSON, and 
+            others.
+          </p>
         </section>
       </aside>
     </section>
     <footer class="row text-white py-3">
       <div class="col mx-2">
         <ul class="list-unstyled">
-          <li>author</li>
-          <li>date</li>
-          <li><a href="#">meta data</a></li>
+          <li>Map By: Matthew Upchurch</li>
+          <li>9/17/2019</li>
+          <li><a href="https://github.com/upcheezy/total-us-pop_map">meta data</a></li>
         </ul>
       </div>
     </footer>
@@ -95,9 +103,9 @@
     }).addTo(map);
 
     var attributeValue = "name",
-            normValue = "pop";
+      normValue = "pop";
 
-    /// AJAX call to load county-level data
+    /// AJAX call to load state JSON data
     $.getJSON("data/states_w_pop.json", function (data) {
       drawMap(data); // draw the map using GeoJSON data
     });
